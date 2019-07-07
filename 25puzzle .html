@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>24 puzzle</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Ultra&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body onload="init()">
+    <h1 id="target">
+        <span id="text">経過時間：<span id="time">--</span>秒</span>
+    </h1>
+    <table id="table"></table>
+    <img src="bg0.png">
+    
+      <div id="start">Start</div>
+
+<script>
+    //use strictを宣言すると、コードがstrict（厳格）モードで実行されるようになる。strictモードでは、より的確なエラーチェックが行われる。
+    "use strict";
+        // 広域変数は「グローバル変数」とも呼ばれ、『複数の処理範囲をまたいで参照できる変数』です
+       let timer = NaN, score = 0, flipTimer, prevCard, startTime;
+        const gameover=1//ゲームオーバータイマー
+        let tiles = [];
+        let position = []; //tilesの位置
+
+　　　　　 const td = document.createElement("td");
+        
+        // 初期化関数
+
+        function init() {
+                        
+            
+        //パズル    
+            
+            const table = document.getElementById("table");
+            for (let i = 0; i < 5; i++) {
+                const tr = document.createElement("tr");
+
+                for (let j = 0; j < 5; j++) {
+                    let index = i * 5 + j;
+
+                    const td = document.createElement("td");
+
+                    //場所が固定ならこれでいい    
+                    //if(index!=0){
+                    //td.style.backgroundImage = 'url(bg'+index +'.png)';
+                    //}
+
+                    td.className = "tile";
+                    td.index = index;
+                    td.value = index;
+                    td.classList.toggle("tile" + index);
+
+                    td.textContent = index == 0 ? "" : index;
+                    //ans = (条件) ? [項目1] : [項目2]
+                    td.onclick = click;
+                    tr.appendChild(td);
+                    tiles.push(td);
+
+                }
+
+                table.appendChild(tr);
+            }
+
+
+
+
+            for (let i = 0; i < 25; i++) {
+                const ele = document.getElementsByClassName('tile' + i)[0]; //class="sample"の複数の要素を取得
+                const rect = ele.getBoundingClientRect();
+                //console.log(rect.left);　　　// x座標
+                //console.log(rect.top);　　　// y座標
+                //console.log(",");      
+                //配列に入れる
+                position.push(rect.left); // x座標
+                position.push(rect.top); // y座標
+
+            }
+
+            //中身確認  
+            //console.log(position);
+            // console.log(tiles);
+            //console.log(position.length);
+
+            //console.log(position[1]);
+
+
+
+            for (let i = 0; i < 1000; i++) {
+              //  click({                    srcElement: { index: Math.floor(Math.random() * 25)}})
+            }
+
+
+        }
+
+        function click(e) {
+            const i = e.srcElement.index;
+
+
+            if (i - 5 >= 0 && tiles[i - 5].value == 0) {
+                swap(i, i - 5);
+            } else if (i + 5 < 25 && tiles[i + 5].value == 0) {
+                swap(i, i + 5);
+            } else if (i % 5 != 0 && tiles[i - 1].value == 0) {
+                swap(i, i - 1);
+            } else if (i % 5 != 4 && tiles[i + 1].value == 0) {
+                swap(i, i + 1);
+            }
+
+            //   console.log("tile" + e.srcElement.value);
+
+        }
+
+
+        //console.log(position[1]);
+
+
+        function swap(i, j) {
+            //   console.log(i);
+            // console.log(j);
+            const tmp = tiles[i].value;
+
+            tiles[i].textContent = tiles[j].textContent;
+            tiles[i].value = tiles[j].value;
+
+            tiles[i].classList.toggle("tile" + tiles[i].value);
+            tiles[j].classList.remove("tile" + tiles[i].value);
+
+
+            tiles[j].classList.toggle("tile" + tmp);
+            tiles[i].classList.remove("tile" + tmp);
+
+
+            tiles[j].textContent = tmp;
+            tiles[j].value = tmp;
+            gameClear();
+
+        }
+
+
+        // スクリーン左上を (0, 0) とした相対座標
+        //var rect = e.getBoundingClientRect();
+        //console.log(rect.top);
+        //console.log(rect.left);
+        //  console.log(document.getElementsByClassName('tile19').getBoundingClientRect().left);   // x座標(絶対座標)
+        //    console.log(rect.top);    // y座標(絶対座標)
+        //  console.log(rect.width);  // 幅
+        //    console.log(rect.height); // 高さ
+        let clear = 0;
+
+
+
+
+
+        //クリアー判定
+        function gameClear() {
+            console.log(position);
+
+            for (let i = 0, j = 0, z = 1; i < 25; i++, j++, z++) {
+                const ele = document.getElementsByClassName('tile' + i)[0]; //class="sample"の複数の要素を取得
+                const rect = ele.getBoundingClientRect();
+
+                //console.log("A:"+rect.left);　　　// x座標
+                //console.log("B:"+rect.top);　　　// y座標          
+                //console.log(j);
+                //console.log(z);  
+                //console.log(position[j]);
+                //console.log(position[z]);
+
+                if ((rect.left == position[j]) && (rect.top == position[z])) { //0～15のパネルが正しい位置にあるかを確認
+                    clear++; //OKならclearに+1
+                }
+                console.log("正解数" + clear);
+                j++;
+                z++;
+            }
+
+            if (25 <= clear) { //15枚のパネルが全て正しい位置にあれば
+                console.log("クリアー");
+            } else {
+                console.log("まだ");
+            }
+            //   console.log("正解数:"+clear);           
+            clear = 0;
+        }
+        
+        
+        
+
+
+        
+        
+document.getElementById("time").textContent = gameover;
+    
+//タイマー判定
+var start = document.getElementById('start');
+        start.addEventListener('click', function(){
+                     
+
+            //ランダムで並び替え
+             for (let i = 0; i < 1000; i++) {
+                click({                    srcElement: { index: Math.floor(Math.random() * 25)}})
+            }
+            
+            
+            
+        //タイマー    
+            startTime = new Date();
+            timer = setInterval(tick, 10);
+             
+        // 経過時間計測用タイマー
+            
+        function tick() {
+            const now = new Date();
+            let elapsed = (gameover-(now.getTime() - startTime.getTime()) / 1000).toFixed(2);
+            document.getElementById("time").textContent = elapsed;
+
+            
+            if(elapsed<5){
+
+                
+     document.getElementById("target").style.backgroundColor = "#f00";
+                
+                  if(elapsed<0){
+                console.log("ゲームオーバー");
+    document.getElementById("table").style.display="none";
+    document.getElementById("text").textContent = "GAME OVER!";
+                                  clearInterval(timer);
+
+
+            }
+                
+            }
+            
+            
+     //ボタンを消す
+    document.getElementById("start").style.display="none";
+            
+        }
+         
+            
+         });
+    </script>
+</body>
+</html>
